@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Article Generator</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* box */
+.container {
+    width: 420px;
+    padding: 25px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    text-align: center;
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* result box */
+#result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.4);
+    min-height: 120px;
+    max-height: 250px;
+    overflow-y: auto;
+
+    /* IMPORTANT FIX */
+    white-space: pre-wrap;
+    line-height: 1.6;
+    text-align: left;
+}
+
+/* states */
+.loading {
+    color: yellow;
+}
+
+.error {
+    color: red;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🤖 ai article generator</h2>
+
+    <input type="text" id="topic" placeholder="enter topic..." />
+    <br>
+    <button onclick="generate()">generate</button>
+
+    <div id="result">your result will appear here...</div>
+</div>
+
+<script>
+async function generate() {
+    let topic = document.getElementById("topic").value;
+    let resultBox = document.getElementById("result");
+
+    if (!topic) {
+        resultBox.innerHTML = "<span class='error'>please enter a topic</span>";
+        return;
+    }
+
+    resultBox.innerHTML = "<span class='loading'>data is fetching...</span>";
+
+    try {
+        let response = await fetch("https://himanshi30.app.n8n.cloud/webhook-test/generate-article", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ topic: topic })
+        });
+
+        let data = await response.json();
+
+        // 🔥 MAIN FIX HERE
+        let output = data.output || JSON.stringify(data, null, 2);
+
+        // line breaks fix
+        output = output.replace(/\\n/g, "\n");
+
+        resultBox.textContent = output;
+
+    } catch (e) {
+        resultBox.innerHTML = "<span class='error'>data is not fetching, try again</span>";
+    }
+}
+</script>
+
+</body>
+</html>
